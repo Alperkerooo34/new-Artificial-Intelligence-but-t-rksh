@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Karex - Yapay Zeka</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; background: #fff; }
+    #civciv {
+      display: block;
+      margin: 20px auto;
+      width: 280px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    }
+    #chat { border: 1px solid #ccc; height: 400px; padding: 10px; overflow-y: auto; background: #f9f9f9; }
+    #inputArea { margin-top: 10px; display: flex; }
+    #input { flex: 1; padding: 10px; font-size: 16px; }
+    #sendBtn { padding: 10px 15px; font-size: 16px; }
+    #footer { text-align: right; margin-top: 10px; font-size: 12px; color: #666; }
+    #learnArea {
+      margin-top: 15px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      background: #eee;
+      font-size: 14px;
+      border-radius: 6px;
+    }
+    #learnArea input {
+      width: calc(50% - 12px);
+      padding: 5px;
+      margin-right: 5px;
+      border: 1px solid #bbb;
+      border-radius: 4px;
+    }
+    #learnArea button {
+      padding: 5px 10px;
+      font-weight: bold;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    #learnArea button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <h1>Karex</h1>
+
+  <img id="civciv" 
+       src="https://upload.wikimedia.org/wikipedia/commons/6/6a/Chicken_chick_2005-04-09.jpg" 
+       alt="Sevimli Civciv" />
+
+  <div id="chat"></div>
+
+  <div id="inputArea">
+    <input id="input" type="text" placeholder="Mesajınızı yazın..." autofocus />
+    <button id="sendBtn">Gönder</button>
+  </div>
+
+  <div id="learnArea">
+    <strong>Karex'e yeni bir şey öğret:</strong><br/>
+    <input id="newQuestion" type="text" placeholder="Soru" />
+    <input id="newAnswer" type="text" placeholder="Cevap" />
+    <button id="teachBtn">Öğret</button>
+  </div>
+
+  <div id="footer">Alper Kerem Demir tarafından oluşturuldu</div>
+
+  <script>
+    const chat = document.getElementById('chat');
+    const input = document.getElementById('input');
+    const sendBtn = document.getElementById('sendBtn');
+    const newQuestion = document.getElementById('newQuestion');
+    const newAnswer = document.getElementById('newAnswer');
+    const teachBtn = document.getElementById('teachBtn');
+
+    // Başlangıç cevapları
+    let cevaplar = [
+      { kalip: /merhaba|selam/i, cevap: 'Merhaba! Size nasıl yardımcı olabilirim?' },
+      { kalip: /nasılsın/i, cevap: 'İyiyim, teşekkür ederim! Sen nasılsın?' },
+      { kalip: /teşekkür/i, cevap: 'Rica ederim!' },
+      { kalip: /yardım/i, cevap: 'Size nasıl yardımcı olabilirim?' },
+      { kalip: /.*/, cevap: 'Üzgünüm, bunu anlayamadım.' }
+    ];
+
+    function mesajEkle(gonderen, mesaj) {
+      const div = document.createElement('div');
+      div.innerHTML = `<strong>${gonderen}:</strong> ${mesaj}`;
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function cevapVer(metin) {
+      for (let c of cevaplar) {
+        if (c.kalip.test(metin)) {
+          return c.cevap;
+        }
+      }
+      return 'Üzgünüm, bunu anlayamadım.';
+    }
+
+    function gonder() {
+      const metin = input.value.trim();
+      if (!metin) return;
+      mesajEkle('Sen', metin);
+
+      const cevap = cevapVer(metin);
+      mesajEkle('Karex', cevap);
+
+      input.value = '';
+      input.focus();
+    }
+
+    function ogret() {
+      const soru = newQuestion.value.trim();
+      const cevap = newAnswer.value.trim();
+      if (!soru || !cevap) {
+        alert('Lütfen hem soru hem cevap yazın.');
+        return;
+      }
+
+      // Yeni soruyu cevaplar dizisine ekle
+      cevaplar.unshift({ kalip: new RegExp(soru, 'i'), cevap: cevap });
+
+      mesajEkle('Karex', `Teşekkürler! "${soru}" sorusunu öğrendim.`);
+
+      newQuestion.value = '';
+      newAnswer.value = '';
+      newQuestion.focus();
+    }
+
+    sendBtn.addEventListener('click', gonder);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') gonder();
+    });
+
+    teachBtn.addEventListener('click', ogret);
+    newAnswer.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') ogret();
+    });
+  </script>
+</body>
+</html>
